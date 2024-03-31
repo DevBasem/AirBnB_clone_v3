@@ -1,0 +1,30 @@
+.filters .popover {
+  background-color: #fafafa;
+  border: 1px solid #dddddd;
+  border-radius: 4px;
+  padding: 16px 32px;
+  position: absolute;
+  overflow-y: auto;
+  max-height: 300px;
+  left: 0;
+  right: 0;
+  top: 100%;
+  display: none;
+}
+
+.filters .locations:hover .popover,
+.filters .amenities:hover .popover {
+  display: block;
+}
+
+.filters .state-name {
+  font-size: 16px;
+}
+
+.filters .state-data li {
+  padding-left: 24px;
+}
+
+.filters .locations .popover > li:not(:last-child) {
+  padding-bottom: 24px;
+}

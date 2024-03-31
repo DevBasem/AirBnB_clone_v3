@@ -1,0 +1,18 @@
+@media (max-width: 1199px) {
+  h4 {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .container {
+    max-width: 95%;
+    width: 100%;
+    margin: 30px auto;
+  }
+
+  .locations,
+  .amenities {
+    width: 35%;
+    padding: 16px 32px;
+  }
+}
