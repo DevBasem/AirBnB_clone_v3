@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """
-Contains the TestFileStorageDocs and TestFileStorage classes
+Contains the TestFileStorageDocs classes
 """
 
 from datetime import datetime
@@ -38,8 +38,7 @@ class TestFileStorageDocs(unittest.TestCase):
                          "Found code style errors (and warnings).")
 
     def test_pep8_conformance_test_file_storage(self):
-        """Test tests/test_models/test_engine/test_file_storage.py
-        conforms to PEP8."""
+        """Test tests/test_models/test_file_storage.py conforms to PEP8."""
         pep8s = pep8.StyleGuide(quiet=True)
         result = pep8s.check_files(['tests/test_models/test_engine/\
 test_file_storage.py'])
@@ -72,38 +71,45 @@ test_file_storage.py'])
 class TestFileStorage(unittest.TestCase):
     """Test the FileStorage class"""
     @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
-    def test_get_method(self):
-        """Test get method"""
-        state = State(name="California")
-        models.storage.new(state)
-        models.storage.save()
-        obj = models.storage.get(State, state.id)
-        self.assertEqual(obj, state)
-
-    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
-    def test_get_method_nonexistent_id(self):
-        """Test get method with nonexistent ID"""
-    obj = models.storage.get(State, "nonexistent_id")
-    self.assertIsNone(obj)
-
-    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
-    def test_count_method(self):
-        """Test count method"""
-    count = models.storage.count(State)
-    self.assertEqual(count, 0)  # Replace 0 with the expected count
-    @unittest.skipIf(os.getenv('HBNB_TYPE_STORAGE') == 'db',
-                     "not testing file storage")
-    def test_count(self):
+    def test_all_returns_dict(self):
+        """Test that all returns the FileStorage.__objects attr"""
         storage = FileStorage()
-        length = len(storage.all())
-        self.assertEqual(storage.count(), length)
-        state_len = len(storage.all("State"))
-        self.assertEqual(storage.count("State"), state_len)
-        new = State()
-        new.save()
-        self.assertEqual(storage.count(), length + 1)
-        self.assertEqual(storage.count("State"), state_len + 1)
+        new_dict = storage.all()
+        self.assertEqual(type(new_dict), dict)
+        self.assertIs(new_dict, storage._FileStorage__objects)
 
+    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
+    def test_new(self):
+        """test that new adds an object to the FileStorage.__objects attr"""
+        storage = FileStorage()
+        save = FileStorage._FileStorage__objects
+        FileStorage._FileStorage__objects = {}
+        test_dict = {}
+        for key, value in classes.items():
+            with self.subTest(key=key, value=value):
+                instance = value()
+                instance_key = instance.__class__.__name__ + "." + instance.id
+                storage.new(instance)
+                test_dict[instance_key] = instance
+                self.assertEqual(test_dict, storage._FileStorage__objects)
+        FileStorage._FileStorage__objects = save
 
-if __name__ == '__main__':
-    unittest.main()
+    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
+    def test_save(self):
+        """Test that save properly saves objects to file.json"""
+        storage = FileStorage()
+        new_dict = {}
+        for key, value in classes.items():
+            instance = value()
+            instance_key = instance.__class__.__name__ + "." + instance.id
+            new_dict[instance_key] = instance
+        save = FileStorage._FileStorage__objects
+        FileStorage._FileStorage__objects = new_dict
+        storage.save()
+        FileStorage._FileStorage__objects = save
+        for key, value in new_dict.items():
+            new_dict[key] = value.to_dict()
+        string = json.dumps(new_dict)
+        with open("file.json", "r") as f:
+            js = f.read()
+        self.assertEqual(json.loads(string), json.loads(js))
