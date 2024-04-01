@@ -99,6 +99,7 @@ $(hbnb) all User
 ## Authors
 
 - Basem Ahmed
+- Nada Shaban
 
 ## Acknowledgments
 - Special thanks to the ALX staff for their guidance and support throughout the development of this project.
