@@ -68,9 +68,6 @@ test_db_storage.py'])
             self.assertTrue(len(func[1].__doc__) >= 1,
                             "{:s} method needs a docstring".format(func[0]))
 
-
-class TestFileStorage(unittest.TestCase):
-    """Test the FileStorage class"""
     @unittest.skipIf(models.storage_t == 'db', "not testing db storage")
     def test_get_method(self):
         """Test get method"""
@@ -92,15 +89,18 @@ class TestFileStorage(unittest.TestCase):
         count = models.storage.count(State)
         self.assertEqual(count, 1)
 
-    @unittest.skipIf(models.storage_t == 'db', "not testing db storage")
-    def test_count_method_no_cls(self):
-        """Test count method without class"""
-        all_objects = models.storage.all()
-        print("All Objects:", all_objects)
-        count = models.storage.count()
-        print("Count:", count)
-        self.assertEqual(count, 1)
-
+    @unittest.skipIf(os.getenv('HBNB_TYPE_STORAGE') != 'db',
+                     "not testing db storage")
+    def test_count(self):
+        """test that new adds an object to the database"""
+        initial_count = models.storage.count()
+        self.assertEqual(models.storage.count("Blah"), 0)
+        new_state = State(name="Florida")
+        new_state.save()
+        new_user = User(email="bob@foobar.com", password="password")
+        new_user.save()
+        self.assertEqual(models.storage.count("State"), initial_count + 1)
+        self.assertEqual(models.storage.count(), initial_count + 2)
 
 if __name__ == '__main__':
     unittest.main()

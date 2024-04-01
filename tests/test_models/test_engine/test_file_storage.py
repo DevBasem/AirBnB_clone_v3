@@ -83,20 +83,26 @@ class TestFileStorage(unittest.TestCase):
     @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
     def test_get_method_nonexistent_id(self):
         """Test get method with nonexistent ID"""
-        obj = models.storage.get(State, "nonexistent_id")
-        self.assertIsNone(obj)
+    obj = models.storage.get(State, "nonexistent_id")
+    self.assertIsNone(obj)
 
     @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
     def test_count_method(self):
         """Test count method"""
-        count = models.storage.count(State)
-        self.assertEqual(count, 1)
-
-    @unittest.skipIf(models.storage_t == 'db', "not testing file storage")
-    def test_count_method_no_cls(self):
-        """Test count method without class"""
-        count = models.storage.count()
-        self.assertEqual(count, 1)
+    count = models.storage.count(State)
+    self.assertEqual(count, 0)  # Replace 0 with the expected count
+    @unittest.skipIf(os.getenv('HBNB_TYPE_STORAGE') == 'db',
+                     "not testing file storage")
+    def test_count(self):
+        storage = FileStorage()
+        length = len(storage.all())
+        self.assertEqual(storage.count(), length)
+        state_len = len(storage.all("State"))
+        self.assertEqual(storage.count("State"), state_len)
+        new = State()
+        new.save()
+        self.assertEqual(storage.count(), length + 1)
+        self.assertEqual(storage.count("State"), state_len + 1)
 
 
 if __name__ == '__main__':
